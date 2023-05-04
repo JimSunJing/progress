@@ -190,6 +190,7 @@ export default function Home() {
       <div className="absolute top-0 right-0 p-4">
         <ThemeButton />
       </div>
+      <div className="w-52 text-end text-slate-300 text-sm">{`${progress}%`}</div>
       <div className="bg-gray-200 dark:bg-gray-400 rounded-full w-52 h-4">
         <div
           className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-full h-4"
