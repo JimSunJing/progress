@@ -27,7 +27,7 @@
 } */
 
 body {
-  @apply dark:bg-slate-800 bg-white;
+  @apply dark:bg-slate-800 bg-slate-50;
 }
 
 input[type="checkbox"]:checked + label span:first-of-type {

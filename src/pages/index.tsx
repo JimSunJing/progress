@@ -5,14 +5,12 @@ import { BsSunFill, BsMoonFill } from "react-icons/bs";
 import { IoAdd } from "react-icons/io5";
 import { FcCancel } from "react-icons/fc";
 
-type Chapter = {
-  name: string;
-  id: string;
-  checked: boolean;
-  val: number;
-};
+import { Chapter, StoreButton } from "@/component/storeButton";
+import { useRecoilState } from "recoil";
+import { currentProgressAtom } from "@/atom/progressAtom";
+import { useLocalStore } from "@/hooks/useLocalStore";
 
-const Chapter = ({
+const ChapterItem = ({
   item,
   handleCheck,
   handleDelete,
@@ -31,7 +29,7 @@ const Chapter = ({
         onChange={() => handleCheck(item.id)}
       />
       <label
-        className="flex items-center h-10 px-2 rounded cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-500"
+        className="flex items-center h-10 px-2 rounded cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-500"
         htmlFor={item.id}
       >
         <span className="flex items-center justify-center w-5 h-5 text-transparent border-2 border-slate-300 rounded-full">
@@ -39,7 +37,7 @@ const Chapter = ({
         </span>
         <span className="ml-4 text-sm flex-grow">{item.name}</span>
         <span
-          className="text-xl text-slate-200 hover:text-slate-600 dark:text-slate-600 dark:hover:text-slate-300"
+          className="text-xl text-slate-300 hover:text-slate-600 dark:text-slate-600 dark:hover:text-slate-300"
           onClick={(e) => {
             e.stopPropagation();
             handleDelete(item.id);
@@ -80,7 +78,7 @@ const NewChapter = ({
     <div className="flex mt-3 w-full">
       {!onWrite && (
         <div
-          className="text-slate-200 hover:text-slate-600 text-2xl hover:bg-slate-50 flex-grow px-2 py-1 rounded-md"
+          className="text-slate-300 hover:text-slate-600 text-2xl hover:bg-slate-100 dark:hover:bg-slate-400 flex-grow px-2 py-1 rounded-md"
           onClick={() => setOnWrite(true)}
         >
           <IoAdd />
@@ -134,7 +132,7 @@ const ThemeButton = () => {
       onClick={() =>
         currentTheme == "dark" ? setTheme("light") : setTheme("dark")
       }
-      className="bg-gray-800 dark:bg-gray-50 hover:bg-gray-600 dark:hover:bg-gray-300 transition-all duration-100 text-white dark:text-gray-800 px-2 py-2 rounded-lg text-xl"
+      className="bg-gray-800 dark:bg-gray-50 hover:bg-gray-600 dark:hover:bg-gray-300 transition-all duration-100 text-white dark:text-gray-800 px-2 py-2 rounded-lg text-md"
     >
       {currentTheme === "dark" && <BsSunFill />}
       {currentTheme !== "dark" && <BsMoonFill />}
@@ -151,19 +149,22 @@ const getPorgress = (arr: Chapter[]): number => {
 };
 
 export default function Home() {
-  const [chapters, setChapters] = useState(testChapter);
+  const [currentProgress, setCurrentProgress] =
+    useRecoilState(currentProgressAtom);
+  const { saveChange2Local } = useLocalStore();
 
-  if (!chapters) {
+  if (!currentProgress.chapters) {
     return <div>Loading...</div>;
   }
 
   // calculate progress in component
-  const progress = getPorgress(chapters);
+  const progress = getPorgress(currentProgress.chapters);
 
   // check a chapter
   const handleCheck = (id: string) => {
-    setChapters((prev) =>
-      prev.map((item) => {
+    setCurrentProgress((prev) => ({
+      ...prev,
+      chapters: prev.chapters.map((item) => {
         if (item.id === id) {
           return {
             ...item,
@@ -171,35 +172,45 @@ export default function Home() {
           };
         }
         return item;
-      })
-    );
+      }),
+    }));
   };
 
   const handleDelete = (id: string) => {
-    setChapters((prev) => prev.filter((item) => item.id !== id));
+    setCurrentProgress((prev) => ({
+      ...prev,
+      chapters: prev.chapters.filter((item) => item.id !== id),
+    }));
   };
 
   const addNewChapter = (newChapter: Chapter) => {
-    setChapters((prev) => prev.concat(newChapter));
+    setCurrentProgress((prev) => ({
+      ...prev,
+      chapters: prev.chapters.concat(newChapter),
+    }));
   };
 
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-center pt-24`}
     >
+      <div className="absolute top-0 left-0 p-4">
+        <StoreButton />
+      </div>
       <div className="absolute top-0 right-0 p-4">
         <ThemeButton />
       </div>
+
       <div className="w-52 text-end text-slate-300 text-sm">{`${progress}%`}</div>
-      <div className="bg-gray-200 dark:bg-gray-400 rounded-full w-52 h-4">
+      <div className="bg-gray-300 dark:bg-gray-400 rounded-full w-52 h-4">
         <div
           className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-full h-4"
           style={{ width: `${progress}%` }}
         ></div>
       </div>
       <div className="flex flex-col mt-5 space-y-3 w-52">
-        {chapters.map((item) => (
-          <Chapter
+        {currentProgress.chapters.map((item) => (
+          <ChapterItem
             key={item.id}
             item={item}
             handleCheck={handleCheck}
@@ -211,24 +222,3 @@ export default function Home() {
     </main>
   );
 }
-
-const testChapter: Chapter[] = [
-  {
-    name: "chapter1",
-    id: "dqodjoe",
-    checked: true,
-    val: 11,
-  },
-  {
-    name: "chapter2",
-    id: "ewjidhq",
-    checked: false,
-    val: 23,
-  },
-  {
-    name: "chapter3",
-    id: "ewjid2ehq",
-    checked: false,
-    val: 45,
-  },
-];
