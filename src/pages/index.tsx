@@ -1,14 +1,14 @@
 import { useTheme } from "next-themes";
 import { useState } from "react";
-import { TiDeleteOutline, TiTick } from "react-icons/ti";
-import { BsSunFill, BsMoonFill } from "react-icons/bs";
-import { IoAdd } from "react-icons/io5";
+import { BsMoonFill, BsSunFill } from "react-icons/bs";
 import { FcCancel } from "react-icons/fc";
+import { IoAdd } from "react-icons/io5";
+import { TiDeleteOutline, TiTick } from "react-icons/ti";
 
+import { currentProgressAtom } from "@/atom/progressAtom";
 import { Chapter, StoreButton } from "@/component/storeButton";
 import { useRecoilState } from "recoil";
-import { currentProgressAtom } from "@/atom/progressAtom";
-import { useLocalStore } from "@/hooks/useLocalStore";
+import { toast } from "react-hot-toast";
 
 const ChapterItem = ({
   item,
@@ -61,13 +61,18 @@ const NewChapter = ({
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      console.log("enter!");
+      if (!newChapter && newValue > 0) {
+        toast.error("input invalid");
+        return;
+      }
+
       addNewChapter({
-        id: `${Date.now()}`,
-        name: newChapter ? newChapter : "Untitled",
+        id: `c${Date.now()}`,
+        name: newChapter,
         checked: false,
-        val: newValue && newValue > 0 ? newValue : 10,
+        val: newValue,
       } as Chapter);
+
       setNewChapter("");
       setNewValue(10);
       setOnWrite(false);
@@ -151,7 +156,6 @@ const getPorgress = (arr: Chapter[]): number => {
 export default function Home() {
   const [currentProgress, setCurrentProgress] =
     useRecoilState(currentProgressAtom);
-  const { saveChange2Local } = useLocalStore();
 
   if (!currentProgress.chapters) {
     return <div>Loading...</div>;

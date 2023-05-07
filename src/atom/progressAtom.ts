@@ -4,7 +4,8 @@ import { atom } from "recoil";
 export const currentProgressAtom = atom<ProgressItem>({
   key: "currentProgress",
   default: {
-    name: "empty",
+    name: "default",
+    id: "default-z",
     chapters: [],
   },
 });
