@@ -1,5 +1,5 @@
 import { currentProgressAtom } from "@/atom/progressAtom";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useResetRecoilState } from "recoil";
 import React, { useEffect, useState } from "react";
 import {
   ProgressItem,
@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 export const useLocalStore = () => {
   const [currentProgress, setCurrentProgress] =
     useRecoilState(currentProgressAtom);
-  const [progressList, setProgressList] = useState<ProgressList>();
+  const [progressList, setProgressList] = useState<ProgressList>([]);
 
   useEffect(() => {
     initStore();
@@ -22,11 +22,33 @@ export const useLocalStore = () => {
     saveChangeLocal();
   }, [currentProgress]);
 
+  const deleteCurrent = () => {
+    const storedProgress = getStoredProgress();
+    const newProgresses = storedProgress.filter(
+      (item) => item.id !== currentProgress.id
+    );
+    localStorage.setItem("storedChapters", JSON.stringify(newProgresses));
+    // reset current progress
+    if (newProgresses.length === 0) {
+      setCurrentProgress({
+        name: "untitled",
+        id: `p${Date.now()}`,
+        chapters: [],
+      });
+      return;
+    }
+    setCurrentProgress(newProgresses[0]);
+  };
+
   const saveChangeLocal = () => {
     const storedProgress = getStoredProgress();
-    const newProgresses = storedProgress
-      .filter((item) => item.id !== currentProgress.id)
-      .concat(currentProgress);
+    let newProgresses: StoredProgress;
+    newProgresses = storedProgress.map((item) => {
+      if (item.id !== currentProgress.id) {
+        return item;
+      }
+      return currentProgress;
+    });
     localStorage.setItem("storedChapters", JSON.stringify(newProgresses));
   };
 
@@ -36,6 +58,12 @@ export const useLocalStore = () => {
    */
   const getStoredProgress = (): StoredProgress => {
     try {
+      if (
+        !localStorage.getItem("storedChapters") ||
+        localStorage.getItem("storedChapters") === ""
+      ) {
+        return [];
+      }
       return StoredProgress.parse(
         JSON.parse(
           z.string().min(2).parse(localStorage.getItem("storedChapters"))
@@ -47,8 +75,7 @@ export const useLocalStore = () => {
     }
   };
 
-  const getProgressList = (): ProgressList => {
-    const store = getStoredProgress();
+  const getProgressList = (store: ProgressList): ProgressList => {
     // get list of all book/progress
     if (store) {
       return store.map((item) => ({
@@ -71,15 +98,20 @@ export const useLocalStore = () => {
     ) {
       try {
         localStorage.setItem("storedChapters", JSON.stringify([testData]));
+        setCurrentProgress(testData);
+        setProgressList(getProgressList([testData]));
+        return;
       } catch (error) {
         console.error(error);
       }
     }
     // load data from localStore
     const data = getStoredProgress();
-    if (data.length > 0) {
+    if (data && data.length > 0) {
       setCurrentProgress(data[0]);
-      setProgressList(getProgressList());
+      setProgressList(getProgressList(data));
+    } else {
+      setProgressList([]);
     }
   };
 
@@ -87,11 +119,12 @@ export const useLocalStore = () => {
     saveChangeLocal,
     getStoredProgress,
     progressList,
+    deleteCurrent,
   };
 };
 
 const testData: ProgressItem = {
-  name: "test",
+  name: "存在主义心理治疗",
   id: "testProgress-0",
   chapters: [
     {

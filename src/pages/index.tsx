@@ -205,6 +205,7 @@ export default function Home() {
         <ThemeButton />
       </div>
 
+      <div className="w-52 text-start text-slate-300 text-sm">{`${currentProgress.name}`}</div>
       <div className="w-52 text-end text-slate-300 text-sm">{`${progress}%`}</div>
       <div className="bg-gray-300 dark:bg-gray-400 rounded-full w-52 h-4">
         <div

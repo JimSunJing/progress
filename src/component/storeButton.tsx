@@ -2,23 +2,10 @@ import { currentProgressAtom } from "@/atom/progressAtom";
 import { useLocalStore } from "@/hooks/useLocalStore";
 import toast from "react-hot-toast";
 import { BsSave, BsTrash } from "react-icons/bs";
-import { useResetRecoilState } from "recoil";
 import { z } from "zod";
 
 export const StoreButton = () => {
-  const resetCurrentProgress = useResetRecoilState(currentProgressAtom);
-  const { saveChangeLocal, progressList } = useLocalStore();
-
-  const clearLocal = () => {
-    const confirm = window.confirm(
-      "Are you sure you want to delete all cache?"
-    );
-    if (confirm) {
-      localStorage.removeItem("storedChapters");
-      resetCurrentProgress();
-      toast.success("Local Storage Clear!");
-    }
-  };
+  const { saveChangeLocal, progressList, deleteCurrent } = useLocalStore();
 
   const saveLocal = () => {
     saveChangeLocal();
@@ -31,7 +18,7 @@ export const StoreButton = () => {
         <BsSave onClick={() => saveLocal()} />
       </div>
       <div className="px-2">
-        <BsTrash onClick={() => clearLocal()} />
+        <BsTrash onClick={() => {}} />
       </div>
     </div>
   );
