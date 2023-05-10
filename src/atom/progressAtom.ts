@@ -4,6 +4,7 @@ import { atom } from "recoil";
 const defaultCurrentProgress: ProgressItem = {
   name: "untitled",
   id: "default-z",
+  desc: "default",
   chapters: [],
 };
 

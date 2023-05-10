@@ -1,13 +1,13 @@
 import { currentProgressAtom } from "@/atom/progressAtom";
-import { useRecoilState, useResetRecoilState } from "recoil";
-import React, { useEffect, useState } from "react";
 import {
   ProgressItem,
   ProgressList,
   StoredProgress,
 } from "@/component/storeButton";
-import { z } from "zod";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useRecoilState } from "recoil";
+import { z } from "zod";
 
 export const useLocalStore = () => {
   const [currentProgress, setCurrentProgress] =
@@ -34,6 +34,7 @@ export const useLocalStore = () => {
         name: "untitled",
         id: `p${Date.now()}`,
         chapters: [],
+        desc: "",
       });
       return;
     }
@@ -97,9 +98,9 @@ export const useLocalStore = () => {
       localStorage.getItem("storedChapters") === ""
     ) {
       try {
-        localStorage.setItem("storedChapters", JSON.stringify([testData]));
-        setCurrentProgress(testData);
-        setProgressList(getProgressList([testData]));
+        localStorage.setItem("storedChapters", JSON.stringify([testDataEn]));
+        setCurrentProgress(testDataEn);
+        setProgressList(getProgressList([testDataEn]));
         return;
       } catch (error) {
         console.error(error);
@@ -108,6 +109,17 @@ export const useLocalStore = () => {
     // load data from localStore
     const data = getStoredProgress();
     if (data && data.length > 0) {
+      if (localStorage.getItem("lastProgressId")) {
+        const p = data.find(
+          (item) => item.id === localStorage.getItem("latsProgressId")
+        );
+        if (p) {
+          setCurrentProgress(p);
+        } else {
+          setCurrentProgress(data[0]);
+          localStorage.setItem("latsProgressId", data[0].id);
+        }
+      }
       setCurrentProgress(data[0]);
       setProgressList(getProgressList(data));
     } else {
@@ -115,17 +127,32 @@ export const useLocalStore = () => {
     }
   };
 
+  const addProgressItem = (item: ProgressItem) => {
+    // add new progress to localstorage
+    const storedProgress = getStoredProgress();
+    let newProgresses: StoredProgress;
+    newProgresses = storedProgress.concat(item);
+    localStorage.setItem("storedChapters", JSON.stringify(newProgresses));
+    // update progress list
+    setProgressList(getProgressList(newProgresses));
+    // update current progress atom
+    setCurrentProgress(item);
+    localStorage.setItem("latsProgressId", item.id);
+  };
+
   return {
     saveChangeLocal,
     getStoredProgress,
     progressList,
     deleteCurrent,
+    addProgressItem,
   };
 };
 
-const testData: ProgressItem = {
+const testDataZh: ProgressItem = {
   name: "存在主义心理治疗",
   id: "testProgress-0",
+  desc: "作者：亚隆",
   chapters: [
     {
       name: "第一章 导论",
@@ -192,6 +219,86 @@ const testData: ProgressItem = {
       id: "c111",
       checked: false,
       val: 24,
+    },
+  ],
+};
+
+const testDataEn: ProgressItem = {
+  name: "Siddhartha",
+  desc: "A 1922 novel by Hermann Hesse that deals with the spiritual journey of self-discovery of a man named Siddhartha",
+  id: "testProgress-1",
+  chapters: [
+    {
+      name: "The Son of the Brahmin",
+      id: "a1aa1",
+      checked: true,
+      val: 9,
+    },
+    {
+      name: "With the Samanas",
+      id: "b2bb2",
+      checked: true,
+      val: 9,
+    },
+    {
+      name: "Gotama",
+      id: "c3cc3",
+      checked: false,
+      val: 9,
+    },
+    {
+      name: "Awakening",
+      id: "44sd4",
+      checked: false,
+      val: 4,
+    },
+    {
+      name: "Kamala",
+      id: "c55",
+      checked: false,
+      val: 14,
+    },
+    {
+      name: "With the Childlike People",
+      id: "c66",
+      checked: false,
+      val: 9,
+    },
+    {
+      name: "Sansara",
+      id: "c77",
+      checked: false,
+      val: 8,
+    },
+    {
+      name: "By the River",
+      id: "c88",
+      checked: false,
+      val: 11,
+    },
+    {
+      name: "The Ferryman",
+      id: "c99",
+      checked: false,
+      val: 12,
+    },
+    {
+      name: "The Son",
+      id: "k100",
+      checked: false,
+      val: 9,
+    },
+    {
+      name: "Om",
+      id: "k111",
+      checked: false,
+      val: 7,
+    },
+    {
+      name: "Govinda",
+      id: "k112",
+      checked: false,
+      val: 10,
     },
   ],
 };

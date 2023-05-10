@@ -1,7 +1,10 @@
+import { newProgressModalAtom } from "@/atom/newProgressModalAtom";
 import { currentProgressAtom } from "@/atom/progressAtom";
 import { useLocalStore } from "@/hooks/useLocalStore";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { BsSave, BsTrash } from "react-icons/bs";
+import { useSetRecoilState } from "recoil";
 import { z } from "zod";
 
 export const StoreButton = () => {
@@ -14,13 +17,29 @@ export const StoreButton = () => {
 
   return (
     <div className="text-xl flex">
-      <div>
-        <BsSave onClick={() => saveLocal()} />
-      </div>
-      <div className="px-2">
-        <BsTrash onClick={() => {}} />
-      </div>
+      <button
+        className="cursor-pointer bg-slate-100 px-2"
+        onClick={() => saveLocal()}
+      >
+        <BsSave />
+      </button>
+      <NewProgressModalButton />
     </div>
+  );
+};
+
+const NewProgressModalButton = () => {
+  const setProgressModal = useSetRecoilState(newProgressModalAtom);
+  return (
+    <>
+      <button
+        className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        type="button"
+        onClick={() => setProgressModal((prev) => ({ ...prev, open: true }))}
+      >
+        New
+      </button>
+    </>
   );
 };
 
@@ -38,6 +57,7 @@ export type Chapter = z.infer<typeof Chapter>;
 export const ProgressItem = z.object({
   name: z.string(),
   id: z.string(),
+  desc: z.string(),
   chapters: z.array(Chapter),
 });
 
