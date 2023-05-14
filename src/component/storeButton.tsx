@@ -1,26 +1,12 @@
 import { newProgressModalAtom } from "@/atom/newProgressModalAtom";
-import { currentProgressAtom } from "@/atom/progressAtom";
-import { useLocalStore } from "@/hooks/useLocalStore";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { BsSave, BsTrash } from "react-icons/bs";
+import { BsSave } from "react-icons/bs";
 import { useSetRecoilState } from "recoil";
 import { z } from "zod";
 
 export const StoreButton = () => {
-  const { saveChangeLocal, progressList, deleteCurrent } = useLocalStore();
-
-  const saveLocal = () => {
-    saveChangeLocal();
-    toast.success("Saved!");
-  };
-
   return (
     <div className="text-xl flex">
-      <button
-        className="cursor-pointer bg-slate-100 px-2"
-        onClick={() => saveLocal()}
-      >
+      <button className="cursor-pointer bg-slate-100 px-2" onClick={() => {}}>
         <BsSave />
       </button>
       <NewProgressModalButton />
@@ -31,7 +17,7 @@ export const StoreButton = () => {
 const NewProgressModalButton = () => {
   const setProgressModal = useSetRecoilState(newProgressModalAtom);
   return (
-    <>
+    <div className="mx-2">
       <button
         className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         type="button"
@@ -39,7 +25,7 @@ const NewProgressModalButton = () => {
       >
         New
       </button>
-    </>
+    </div>
   );
 };
 

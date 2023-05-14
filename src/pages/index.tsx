@@ -5,11 +5,163 @@ import { FcCancel } from "react-icons/fc";
 import { IoAdd } from "react-icons/io5";
 import { TiDeleteOutline, TiTick } from "react-icons/ti";
 
+import { newProgressModalAtom } from "@/atom/newProgressModalAtom";
 import { currentProgressAtom } from "@/atom/progressAtom";
 import { Chapter, StoreButton } from "@/component/storeButton";
-import { useRecoilState } from "recoil";
 import { toast } from "react-hot-toast";
-import { newProgressModalAtom } from "@/atom/newProgressModalAtom";
+import { useRecoilState } from "recoil";
+
+import { useLocalStore } from "@/hooks/useLocalStore";
+import { SubmitHandler, useForm } from "react-hook-form";
+
+type Inputs = {
+  pname: string;
+  description: string;
+};
+
+const ProgressFormModal = () => {
+  const [modalState, setModalState] = useRecoilState(newProgressModalAtom);
+  const { addProgressItem } = useLocalStore();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<Inputs>();
+
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    addProgressItem({
+      name: data.pname,
+      desc: data.description || "",
+      id: `p${Date.now()}`,
+      chapters: [],
+    });
+    setModalState({ open: false });
+  };
+
+  // console.log(watch("pname"));
+
+  return (
+    <>
+      {modalState.open ? (
+        <div
+          id="new-progress-modal"
+          tabIndex={-1}
+          className="fixed inset-auto md:top-auto md:left-[calc(50%-15rem)] z-50 w-[30rem] p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full"
+        >
+          <div className="relative w-full max-w-md max-h-full">
+            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+              <div className="flex items-center justify-between p-5 border-b rounded-t dark:border-gray-600">
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                  Create New Progress
+                </h3>
+                <button
+                  type="button"
+                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                  data-modal-hide="small-modal"
+                  onClick={() =>
+                    setModalState((prev) => ({ ...prev, open: false }))
+                  }
+                >
+                  <svg
+                    aria-hidden="true"
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
+                  <span className="sr-only">Close modal</span>
+                </button>
+              </div>
+              <div className="p-6 space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                  <div>
+                    <label
+                      htmlFor="pname"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Name
+                    </label>
+                    <input
+                      {...register("pname", { required: true })}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                      placeholder="New Progress Item Name"
+                    />
+                  </div>
+                  {/* errors will return when field validation fails  */}
+                  {errors.pname && <span>This field is required</span>}
+                  <div>
+                    <label
+                      htmlFor="description"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Description
+                    </label>
+                    <input
+                      {...register("description")}
+                      placeholder="About this new item..."
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  >
+                    Create
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
+    </>
+  );
+};
+
+const ProgressList = () => {
+  const { currentProgress, progressList, switchProject } = useLocalStore();
+  // console.log("ProgressList", currentProgress.name, progressList);
+  return (
+    <>
+      {progressList && (
+        <div className="mr-2">
+          <select
+            id="progressList"
+            className=" text-slate-900 text-xl rounded-lg p-1 border-none dark:placeholder-gray-400 dark:bg-gray-800 dark:text-slate-100 bg-transparent ring-transparent font-serif"
+            onChange={(event) => {
+              switchProject(event.target.value);
+            }}
+            value={currentProgress.id}
+          >
+            {progressList.map((item) => {
+              // if (item.id === currentProgress.id) {
+              //   return (
+              //     <option key={item.id} value={item.id} selected>
+              //       {item.name}
+              //     </option>
+              //   );
+              // }
+              return (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      )}
+    </>
+  );
+};
 
 const ChapterItem = ({
   item,
@@ -155,8 +307,8 @@ const getPorgress = (arr: Chapter[]): number => {
 };
 
 export default function Home() {
-  const [currentProgress, setCurrentProgress] =
-    useRecoilState(currentProgressAtom);
+  const { saveChangeLocal, currentProgress, setCurrentProgress } =
+    useLocalStore();
 
   if (!currentProgress.chapters) {
     return <div>Loading...</div>;
@@ -179,6 +331,18 @@ export default function Home() {
         return item;
       }),
     }));
+    saveChangeLocal({
+      ...currentProgress,
+      chapters: currentProgress.chapters.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            checked: !item.checked,
+          };
+        }
+        return item;
+      }),
+    });
   };
 
   const handleDelete = (id: string) => {
@@ -186,6 +350,10 @@ export default function Home() {
       ...prev,
       chapters: prev.chapters.filter((item) => item.id !== id),
     }));
+    saveChangeLocal({
+      ...currentProgress,
+      chapters: currentProgress.chapters.filter((item) => item.id !== id),
+    });
   };
 
   const addNewChapter = (newChapter: Chapter) => {
@@ -193,6 +361,10 @@ export default function Home() {
       ...prev,
       chapters: prev.chapters.concat(newChapter),
     }));
+    saveChangeLocal({
+      ...currentProgress,
+      chapters: currentProgress.chapters.concat(newChapter),
+    });
   };
 
   return (
@@ -208,7 +380,7 @@ export default function Home() {
 
       <div className="flex justify-between mb-3 w-72">
         <span className="text-lg font-bold text-blue-700 dark:text-white">
-          {`${currentProgress.name}`}
+          <ProgressList />
         </span>
       </div>
       <div className="w-72 h-4 bg-gray-200 rounded-full dark:bg-gray-700">
@@ -231,99 +403,7 @@ export default function Home() {
         ))}
         <NewChapter addNewChapter={addNewChapter} />
       </div>
-      <ProgressModal />
+      <ProgressFormModal />
     </main>
   );
 }
-
-const ProgressModal = () => {
-  const [modalState, setModalState] = useRecoilState(newProgressModalAtom);
-  return (
-    <>
-      {modalState.open ? (
-        <div
-          id="new-progress-modal"
-          tabIndex={-1}
-          className="fixed inset-auto md:top-auto md:left-[calc(50%-15rem)] z-50 w-[30rem] p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full"
-        >
-          <div className="relative w-full max-w-md max-h-full">
-            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-              <div className="flex items-center justify-between p-5 border-b rounded-t dark:border-gray-600">
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-                  Create New Progress
-                </h3>
-                <button
-                  type="button"
-                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                  data-modal-hide="small-modal"
-                  onClick={() =>
-                    setModalState((prev) => ({ ...prev, open: false }))
-                  }
-                >
-                  <svg
-                    aria-hidden="true"
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                  <span className="sr-only">Close modal</span>
-                </button>
-              </div>
-              <div className="p-6 space-y-6">
-                <form className="space-y-6" action="#">
-                  <div>
-                    <label
-                      htmlFor="pname"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      id="pname"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                      placeholder="New Progress Item Name"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="description"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Description
-                    </label>
-                    <input
-                      type="text"
-                      name="description"
-                      id="description"
-                      placeholder="About this new item..."
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >
-                    Create
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <></>
-      )}
-    </>
-  );
-};

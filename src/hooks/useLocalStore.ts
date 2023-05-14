@@ -1,4 +1,4 @@
-import { currentProgressAtom } from "@/atom/progressAtom";
+import { currentProgressAtom, progressListAtom } from "@/atom/progressAtom";
 import {
   ProgressItem,
   ProgressList,
@@ -12,15 +12,11 @@ import { z } from "zod";
 export const useLocalStore = () => {
   const [currentProgress, setCurrentProgress] =
     useRecoilState(currentProgressAtom);
-  const [progressList, setProgressList] = useState<ProgressList>([]);
+  const [progressList, setProgressList] = useRecoilState(progressListAtom);
 
   useEffect(() => {
     initStore();
   }, []);
-
-  useEffect(() => {
-    saveChangeLocal();
-  }, [currentProgress]);
 
   const deleteCurrent = () => {
     const storedProgress = getStoredProgress();
@@ -41,14 +37,14 @@ export const useLocalStore = () => {
     setCurrentProgress(newProgresses[0]);
   };
 
-  const saveChangeLocal = () => {
+  const saveChangeLocal = (updatedState: ProgressItem) => {
     const storedProgress = getStoredProgress();
     let newProgresses: StoredProgress;
     newProgresses = storedProgress.map((item) => {
-      if (item.id !== currentProgress.id) {
+      if (item.id !== updatedState.id) {
         return item;
       }
-      return currentProgress;
+      return updatedState;
     });
     localStorage.setItem("storedChapters", JSON.stringify(newProgresses));
   };
@@ -76,7 +72,7 @@ export const useLocalStore = () => {
     }
   };
 
-  const getProgressList = (store: ProgressList): ProgressList => {
+  const getProgressList = (store: StoredProgress): ProgressList => {
     // get list of all book/progress
     if (store) {
       return store.map((item) => ({
@@ -100,7 +96,7 @@ export const useLocalStore = () => {
       try {
         localStorage.setItem("storedChapters", JSON.stringify([testDataEn]));
         setCurrentProgress(testDataEn);
-        setProgressList(getProgressList([testDataEn]));
+        setProgressList(() => getProgressList([testDataEn]));
         return;
       } catch (error) {
         console.error(error);
@@ -109,43 +105,56 @@ export const useLocalStore = () => {
     // load data from localStore
     const data = getStoredProgress();
     if (data && data.length > 0) {
-      if (localStorage.getItem("lastProgressId")) {
-        const p = data.find(
-          (item) => item.id === localStorage.getItem("latsProgressId")
-        );
-        if (p) {
-          setCurrentProgress(p);
-        } else {
+      setProgressList(() => getProgressList(data));
+      const lastProgressId = localStorage.getItem("lastProgressId");
+      if (lastProgressId && lastProgressId !== "") {
+        try {
+          switchProject(lastProgressId);
+        } catch (e) {
           setCurrentProgress(data[0]);
           localStorage.setItem("latsProgressId", data[0].id);
         }
+      } else {
+        setCurrentProgress(data[0]);
       }
-      setCurrentProgress(data[0]);
-      setProgressList(getProgressList(data));
     } else {
       setProgressList([]);
     }
   };
 
   const addProgressItem = (item: ProgressItem) => {
+    console.log("addProgressItem", item);
     // add new progress to localstorage
     const storedProgress = getStoredProgress();
     let newProgresses: StoredProgress;
     newProgresses = storedProgress.concat(item);
     localStorage.setItem("storedChapters", JSON.stringify(newProgresses));
+    switchProject(item.id);
     // update progress list
-    setProgressList(getProgressList(newProgresses));
+    setProgressList(() => getProgressList(newProgresses));
+  };
+
+  const switchProject = (id: string) => {
+    // find progress of local store id
+    const storedProgress = getStoredProgress();
+    const selected = storedProgress.find((item) => item.id === id);
+    if (!selected) {
+      toast.error("Can't find target progress");
+      throw new Error("Progress Not Found!");
+    }
+    setCurrentProgress(selected);
     // update current progress atom
-    setCurrentProgress(item);
-    localStorage.setItem("latsProgressId", item.id);
+    localStorage.setItem("lastProgressId", id);
   };
 
   return {
+    currentProgress,
+    setCurrentProgress,
     saveChangeLocal,
     getStoredProgress,
     progressList,
-    deleteCurrent,
     addProgressItem,
+    switchProject,
   };
 };
 

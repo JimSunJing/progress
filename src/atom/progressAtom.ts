@@ -1,4 +1,4 @@
-import type { ProgressItem } from "@/component/storeButton";
+import { ProgressItem, ProgressList } from "@/component/storeButton";
 import { atom } from "recoil";
 
 const defaultCurrentProgress: ProgressItem = {
@@ -11,4 +11,9 @@ const defaultCurrentProgress: ProgressItem = {
 export const currentProgressAtom = atom<ProgressItem>({
   key: "currentProgress",
   default: defaultCurrentProgress,
+});
+
+export const progressListAtom = atom<ProgressList>({
+  key: "progressList",
+  default: [],
 });
