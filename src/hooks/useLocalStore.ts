@@ -18,23 +18,22 @@ export const useLocalStore = () => {
     initStore();
   }, []);
 
-  const deleteCurrent = () => {
-    const storedProgress = getStoredProgress();
-    const newProgresses = storedProgress.filter(
-      (item) => item.id !== currentProgress.id
-    );
-    localStorage.setItem("storedChapters", JSON.stringify(newProgresses));
-    // reset current progress
-    if (newProgresses.length === 0) {
-      setCurrentProgress({
-        name: "untitled",
-        id: `p${Date.now()}`,
-        chapters: [],
-        desc: "",
-      });
-      return;
+  const deleteProgressItem = (id: string) => {
+    try {
+      const storedProgress = getStoredProgress();
+      const newProgresses = storedProgress.filter((item) => item.id !== id);
+      localStorage.setItem("storedChapters", JSON.stringify(newProgresses));
+      // reset progress list
+      setProgressList(getProgressList(newProgresses));
+      // reset current progress
+      if (currentProgress.id === id) {
+        setCurrentProgress(newProgresses[0]);
+        // update current progress atom
+        localStorage.setItem("lastProgressId", newProgresses[0].id);
+      }
+    } catch (error) {
+      console.log("deleteProgressItem", error);
     }
-    setCurrentProgress(newProgresses[0]);
   };
 
   const saveChangeLocal = (updatedState: ProgressItem) => {
@@ -155,6 +154,7 @@ export const useLocalStore = () => {
     progressList,
     addProgressItem,
     switchProject,
+    deleteProgressItem,
   };
 };
 

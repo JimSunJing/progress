@@ -3,7 +3,7 @@ import { useState } from "react";
 import { BsMoonFill, BsSunFill } from "react-icons/bs";
 import { FcCancel } from "react-icons/fc";
 import { IoAdd } from "react-icons/io5";
-import { TiDeleteOutline, TiTick } from "react-icons/ti";
+import { TiDeleteOutline, TiTick, TiDelete } from "react-icons/ti";
 
 import { newProgressModalAtom } from "@/atom/newProgressModalAtom";
 import { currentProgressAtom } from "@/atom/progressAtom";
@@ -128,35 +128,48 @@ const ProgressFormModal = () => {
 };
 
 const ProgressList = () => {
-  const { currentProgress, progressList, switchProject } = useLocalStore();
+  const { currentProgress, progressList, switchProject, deleteProgressItem } =
+    useLocalStore();
   // console.log("ProgressList", currentProgress.name, progressList);
+
+  const handleDeleteItem = () => {
+    const confirm = window.confirm(`Delete ${currentProgress.name} progress?`);
+    if (confirm) {
+      deleteProgressItem(currentProgress.id);
+    }
+  };
   return (
     <>
       {progressList && (
-        <div className="mr-2">
-          <select
-            id="progressList"
-            className=" text-slate-900 text-xl rounded-lg p-1 border-none dark:placeholder-gray-400 dark:bg-gray-800 dark:text-slate-100 bg-transparent ring-transparent font-serif"
-            onChange={(event) => {
-              switchProject(event.target.value);
-            }}
-            value={currentProgress.id}
-          >
-            {progressList.map((item) => {
-              // if (item.id === currentProgress.id) {
-              //   return (
-              //     <option key={item.id} value={item.id} selected>
-              //       {item.name}
-              //     </option>
-              //   );
-              // }
-              return (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              );
-            })}
-          </select>
+        <div className="flex items-center w-full justify-between">
+          <div className="mr-2 ">
+            <select
+              id="progressList"
+              className=" text-slate-900 text-xl rounded-lg p-1 border-none dark:placeholder-gray-400 dark:bg-gray-800 dark:text-slate-100 bg-transparent ring-transparent font-serif"
+              onChange={(event) => {
+                switchProject(event.target.value);
+              }}
+              value={currentProgress.id}
+            >
+              {progressList.map((item) => {
+                // if (item.id === currentProgress.id) {
+                //   return (
+                //     <option key={item.id} value={item.id} selected>
+                //       {item.name}
+                //     </option>
+                //   );
+                // }
+                return (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <div className="text-2xl" onClick={handleDeleteItem}>
+            <TiDelete />
+          </div>
         </div>
       )}
     </>
@@ -188,7 +201,7 @@ const ChapterItem = ({
         <span className="flex items-center justify-center w-5 h-5 text-transparent border-2 border-slate-300 rounded-full">
           <TiTick />
         </span>
-        <span className="ml-4 text-sm flex-grow">{item.name}</span>
+        <span className="ml-4 mr-2 text-sm flex-grow">{item.name}</span>
         <span
           className="text-xl text-slate-300 hover:text-slate-600 dark:text-slate-600 dark:hover:text-slate-300"
           onClick={(e) => {
@@ -233,7 +246,7 @@ const NewChapter = ({
   };
 
   return (
-    <div className="flex mt-3 w-full">
+    <div className="flex mt-3 w-full items-center">
       {!onWrite && (
         <div
           className="text-slate-300 hover:text-slate-600 text-2xl hover:bg-slate-100 dark:hover:bg-slate-400 flex-grow px-2 py-1 rounded-md"
@@ -378,10 +391,10 @@ export default function Home() {
         <ThemeButton />
       </div>
 
-      <div className="flex justify-between mb-3 w-72">
-        <span className="text-lg font-bold text-blue-700 dark:text-white">
+      <div className="flex justify-between mb-3">
+        <div className="w-64 min-w-full text-lg font-bold text-blue-700 dark:text-white">
           <ProgressList />
-        </span>
+        </div>
       </div>
       <div className="w-72 h-4 bg-gray-200 rounded-full dark:bg-gray-700">
         {progress > 0 && (
@@ -392,7 +405,7 @@ export default function Home() {
         )}
       </div>
 
-      <div className="flex flex-col mt-5 space-y-3 w-52">
+      <div className="flex flex-col mt-5 space-y-3 w-52 min-w-max">
         {currentProgress.chapters.map((item) => (
           <ChapterItem
             key={item.id}
