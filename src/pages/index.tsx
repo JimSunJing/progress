@@ -47,7 +47,7 @@ const ProgressFormModal = () => {
         <div
           id="new-progress-modal"
           tabIndex={-1}
-          className="fixed inset-auto md:top-auto md:left-[calc(50%-15rem)] z-50 w-[30rem] p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full"
+          className="fixed inset-auto md:top-auto md:left-[calc(50%-10rem)] z-50 w-auto md:w-[30rem] p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full"
         >
           <div className="relative w-full max-w-md max-h-full">
             <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
