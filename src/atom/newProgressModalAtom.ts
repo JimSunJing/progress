@@ -12,3 +12,14 @@ export const newProgressModalAtom = atom<ProgressModal>({
   key: "newProgressModal",
   default: defaultNewProgressModal,
 });
+
+type ImportModal = {
+  open: boolean;
+};
+
+export const importJSONModalAtom = atom<ImportModal>({
+  key: "importJSONModal",
+  default: {
+    open: false,
+  },
+});

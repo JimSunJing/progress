@@ -7,7 +7,7 @@ import { TiDeleteOutline, TiTick, TiDelete } from "react-icons/ti";
 
 import { newProgressModalAtom } from "@/atom/newProgressModalAtom";
 import { currentProgressAtom } from "@/atom/progressAtom";
-import { Chapter, StoreButton } from "@/component/storeButton";
+import { Chapter, ImportJSONModal, StoreButton } from "@/component/storeButton";
 import { toast } from "react-hot-toast";
 import { useRecoilState } from "recoil";
 
@@ -47,7 +47,8 @@ const ProgressFormModal = () => {
         <div
           id="new-progress-modal"
           tabIndex={-1}
-          className="fixed inset-auto md:top-auto md:left-[calc(50%-10rem)] z-50 w-auto md:w-[30rem] p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full"
+          aria-hidden="true"
+          className="fixed top-0 left-0 md:top-auto md:left-[calc(50%-10rem)] z-50 w-auto md:w-[30rem] p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full"
         >
           <div className="relative w-full max-w-md max-h-full">
             <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -417,6 +418,7 @@ export default function Home() {
         <NewChapter addNewChapter={addNewChapter} />
       </div>
       <ProgressFormModal />
+      <ImportJSONModal />
     </main>
   );
 }

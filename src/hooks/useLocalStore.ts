@@ -71,6 +71,10 @@ export const useLocalStore = () => {
     }
   };
 
+  const getStoredProgressJSON = () => {
+    return localStorage.getItem("storedChapters");
+  };
+
   const getProgressList = (store: StoredProgress): ProgressList => {
     // get list of all book/progress
     if (store) {
@@ -146,15 +150,35 @@ export const useLocalStore = () => {
     localStorage.setItem("lastProgressId", id);
   };
 
+  const importProgress = (data: string) => {
+    try {
+      const parsed = StoredProgress.parse(
+        JSON.parse(z.string().min(2).parse(data))
+      );
+      const local = getStoredProgress();
+      // combine current and data
+      const mix = local.concat(
+        parsed.filter((item) => !local.find((p) => p.id === item.id))
+      );
+      localStorage.setItem("storedChapters", JSON.stringify(mix));
+      setProgressList(() => getProgressList(mix));
+    } catch (error) {
+      toast.error("Import Error");
+      console.log("importJSON error:", error);
+    }
+  };
+
   return {
     currentProgress,
     setCurrentProgress,
     saveChangeLocal,
     getStoredProgress,
+    getStoredProgressJSON,
     progressList,
     addProgressItem,
     switchProject,
     deleteProgressItem,
+    importProgress,
   };
 };
 
