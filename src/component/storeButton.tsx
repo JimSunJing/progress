@@ -84,8 +84,10 @@ export const ImportJSONModal = () => {
 
   const handleSubmit = () => {
     if (!json) return;
-    // zod data check
-    const check = StoredProgress.safeParse(JSON.parse(json));
+    // zod data check, also fix trailing comma
+    const check = StoredProgress.safeParse(
+      JSON.parse(json.replace(/,\s*}/g, "}"))
+    );
     if (!check.success) {
       toast.error("input data is not correct");
       return;
@@ -94,6 +96,7 @@ export const ImportJSONModal = () => {
     importProgress(json);
     // notification
     toast.success("import success!");
+    setModalState((prev) => ({ ...prev, open: false }));
   };
 
   return (
