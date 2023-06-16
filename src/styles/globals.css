@@ -40,3 +40,17 @@ input[type="checkbox"]:checked + label span:nth-of-type(2) {
   text-decoration: line-through;
   @apply text-slate-400 dark:text-slate-200;
 }
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-repeat: no-repeat;
+  background-position: right center;
+}

@@ -1,8 +1,9 @@
 import { useTheme } from "next-themes";
 import { useState } from "react";
-import { BsMoonFill, BsSunFill } from "react-icons/bs";
+import { BsMoonFill, BsPlusCircle, BsSunFill } from "react-icons/bs";
 import { FcCancel } from "react-icons/fc";
 import { IoAdd } from "react-icons/io5";
+import { SlCalculator } from "react-icons/sl";
 import { TiDeleteOutline, TiTick, TiDelete } from "react-icons/ti";
 
 import { newProgressModalAtom } from "@/atom/newProgressModalAtom";
@@ -18,6 +19,77 @@ import Head from "next/head";
 type Inputs = {
   pname: string;
   description: string;
+};
+
+const MiniCalculator = () => {
+  const [numberA, setNumberA] = useState(0);
+  const [numberB, setNumberB] = useState(0);
+  const [symbol, setSymbol] = useState("+");
+  const [showState, setShowState] = useState(false);
+
+  let result;
+  switch (symbol) {
+    case "+":
+      result = numberA + numberB;
+      break;
+    case "-":
+      result = numberA - numberB;
+      break;
+    case "*":
+      result = numberA * numberB;
+      break;
+    case "/":
+      result = (numberA / numberB).toFixed(2);
+      break;
+
+    default:
+      break;
+  }
+
+  return (
+    <>
+      {!showState && (
+        <div
+          className="text-slate-300 hover:text-slate-600 text-2xl hover:bg-slate-100 dark:hover:bg-slate-300 px-2 py-1 rounded-md my-4 opacity-10 hover:opacity-100"
+          onClick={() => setShowState(true)}
+        >
+          <SlCalculator />
+        </div>
+      )}
+      {showState && (
+        <div className="flex align-middle justify-center my-4">
+          <input
+            type="number"
+            value={numberA}
+            onChange={(e) => setNumberA(Number(e.target.value))}
+            className="block max-w-lg w-14 p-1 text-gray-900 border border-gray-300 rounded-lg bg-transparent text-lg focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          />
+          <select
+            value={symbol}
+            onChange={(e) => setSymbol(e.target.value)}
+            className="text-slate-900 text-2xl rounded-lg p-1 border-none dark:placeholder-gray-400 dark:bg-gray-800 dark:text-slate-100 bg-transparent ring-transparent font-serif"
+          >
+            <option value="+"> {"➕"}</option>
+            <option value="-"> {"➖"} </option>
+            <option value="*"> {"✖️"} </option>
+            <option value="/"> {"➗"} </option>
+          </select>
+          <input
+            type="number"
+            value={numberB}
+            onChange={(e) => setNumberB(Number(e.target.value))}
+            className="block max-w-lg w-14 p-1 text-gray-900 border border-gray-300 rounded-lg bg-transparent text-lg focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          />
+          <div className="block min-w-fit w-14 p-1 ml-2 text-gray-900 text-lg dark:placeholder-gray-400 dark:text-white">
+            <span> 🟰 </span>
+            <span className="font-bold ml-1">
+              {typeof result !== "undefined" ? result : 0}
+            </span>
+          </div>
+        </div>
+      )}
+    </>
+  );
 };
 
 const ProgressFormModal = () => {
@@ -483,6 +555,8 @@ export default function Home() {
         ))}
         <NewChapter addNewChapter={addNewChapter} />
       </div>
+
+      <MiniCalculator />
       <ProgressFormModal />
       <ImportJSONModal />
     </main>
