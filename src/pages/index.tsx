@@ -154,13 +154,6 @@ const ProgressList = () => {
               value={currentProgress.id}
             >
               {progressList.map((item) => {
-                // if (item.id === currentProgress.id) {
-                //   return (
-                //     <option key={item.id} value={item.id} selected>
-                //       {item.name}
-                //     </option>
-                //   );
-                // }
                 return (
                   <option key={item.id} value={item.id}>
                     {item.name}
@@ -182,38 +175,77 @@ const ChapterItem = ({
   item,
   handleCheck,
   handleDelete,
+  handleChapterUpdate,
 }: {
   item: Chapter;
   handleCheck: (id: string) => void;
   handleDelete: (id: string) => void;
+  handleChapterUpdate: (newItem: Chapter) => void;
 }) => {
+  const [nameEditState, setNameEditState] = useState(false);
+  const [newName, setNewName] = useState(item.name);
+
+  const handleInputOnBlur = () => {
+    // switch back to text
+    setNameEditState(false);
+    // update item
+    if (item.name === newName) return;
+    const newItem = {
+      ...item,
+      name: newName,
+    };
+    handleChapterUpdate(newItem);
+  };
+
   return (
     <div>
-      <input
-        className="hidden"
-        type="checkbox"
-        id={item.id}
-        checked={item.checked}
-        onChange={() => handleCheck(item.id)}
-      />
-      <label
-        className="flex items-center h-10 px-2 rounded cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-500"
-        htmlFor={item.id}
-      >
-        <span className="flex items-center justify-center w-5 h-5 text-transparent border-2 border-slate-300 rounded-full">
-          <TiTick />
-        </span>
-        <span className="ml-4 mr-2 text-sm flex-grow">{item.name}</span>
-        <span
-          className="text-xl text-slate-300 hover:text-slate-600 dark:text-slate-600 dark:hover:text-slate-300"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDelete(item.id);
-          }}
-        >
-          <TiDeleteOutline />
-        </span>
-      </label>
+      <>
+        {nameEditState ? (
+          <>
+            <input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onBlur={handleInputOnBlur}
+            />
+          </>
+        ) : (
+          <>
+            <input
+              className="hidden"
+              type="checkbox"
+              id={item.id}
+              checked={item.checked}
+              onChange={() => handleCheck(item.id)}
+            />
+            <label
+              className="flex items-center h-10 px-2 rounded cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-500"
+              htmlFor={item.id}
+            >
+              <span className="flex items-center justify-center w-5 h-5 text-transparent border-2 border-slate-300 rounded-full">
+                <TiTick />
+              </span>
+              <span
+                className="ml-4 mr-2 text-sm flex-grow"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNameEditState(true);
+                }}
+              >
+                {item.name}
+              </span>
+              <span
+                className="text-xl text-slate-300 hover:text-slate-600 dark:text-slate-600 dark:hover:text-slate-300"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(item.id);
+                }}
+              >
+                <TiDeleteOutline />
+              </span>
+            </label>
+          </>
+        )}
+      </>
     </div>
   );
 };
@@ -371,6 +403,35 @@ export default function Home() {
     });
   };
 
+  const handleChapterUpdate = (newItem: Chapter) => {
+    setCurrentProgress((prev) => ({
+      ...prev,
+      chapters: prev.chapters.map((item) => {
+        if (newItem.id === item.id) {
+          return {
+            ...item,
+            name: newItem.name,
+            val: newItem.val,
+          };
+        }
+        return item;
+      }),
+    }));
+    saveChangeLocal({
+      ...currentProgress,
+      chapters: currentProgress.chapters.map((item) => {
+        if (newItem.id === item.id) {
+          return {
+            ...item,
+            name: newItem.name,
+            val: newItem.val,
+          };
+        }
+        return item;
+      }),
+    });
+  };
+
   const addNewChapter = (newChapter: Chapter) => {
     setCurrentProgress((prev) => ({
       ...prev,
@@ -387,7 +448,7 @@ export default function Home() {
       className={`flex min-h-screen flex-col items-center justify-center pt-24`}
     >
       <Head>
-        <title>{`${currentProgress.name} - Progress`}</title>
+        <title>{`${currentProgress.name} - PROGRESS`}</title>
       </Head>
       <div className="absolute top-0 left-0 p-4">
         <StoreButton />
@@ -417,6 +478,7 @@ export default function Home() {
             item={item}
             handleCheck={handleCheck}
             handleDelete={handleDelete}
+            handleChapterUpdate={handleChapterUpdate}
           />
         ))}
         <NewChapter addNewChapter={addNewChapter} />

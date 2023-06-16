@@ -9,7 +9,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <RecoilRoot>
       <Head>
-        <title>Progress View</title>
+        <title>PROGRESS VIEW</title>
         <meta
           name="description"
           content="Progress Tracking 🌈 Visualize Data "

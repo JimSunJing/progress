@@ -2,7 +2,7 @@ import { ProgressItem, ProgressList } from "@/component/storeButton";
 import { atom } from "recoil";
 
 const defaultCurrentProgress: ProgressItem = {
-  name: "untitled",
+  name: "💫",
   id: "default-z",
   desc: "default",
   chapters: [],
