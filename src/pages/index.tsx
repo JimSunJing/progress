@@ -13,6 +13,7 @@ import { useRecoilState } from "recoil";
 
 import { useLocalStore } from "@/hooks/useLocalStore";
 import { SubmitHandler, useForm } from "react-hook-form";
+import Head from "next/head";
 
 type Inputs = {
   pname: string;
@@ -385,6 +386,9 @@ export default function Home() {
     <main
       className={`flex min-h-screen flex-col items-center justify-center pt-24`}
     >
+      <Head>
+        <title>{`${currentProgress.name} - Progress`}</title>
+      </Head>
       <div className="absolute top-0 left-0 p-4">
         <StoreButton />
       </div>
