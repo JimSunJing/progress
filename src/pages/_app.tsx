@@ -17,7 +17,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <ThemeProvider attribute="class">
-        <Toaster position="bottom-center" />
+        <Toaster position="top-center" />
         <Component {...pageProps} />
       </ThemeProvider>
     </RecoilRoot>

@@ -1,20 +1,20 @@
 import { useTheme } from "next-themes";
 import { useState } from "react";
-import { BsMoonFill, BsPlusCircle, BsSunFill } from "react-icons/bs";
+import { BsMoonFill, BsSunFill } from "react-icons/bs";
 import { FcCancel } from "react-icons/fc";
 import { IoAdd } from "react-icons/io5";
+import { MdDoneOutline } from "react-icons/md";
 import { SlCalculator } from "react-icons/sl";
-import { TiDeleteOutline, TiTick, TiDelete } from "react-icons/ti";
+import { TiDelete, TiDeleteOutline, TiTick } from "react-icons/ti";
 
 import { newProgressModalAtom } from "@/atom/newProgressModalAtom";
-import { currentProgressAtom } from "@/atom/progressAtom";
 import { Chapter, ImportJSONModal, StoreButton } from "@/component/storeButton";
 import { toast } from "react-hot-toast";
 import { useRecoilState } from "recoil";
 
 import { useLocalStore } from "@/hooks/useLocalStore";
-import { SubmitHandler, useForm } from "react-hook-form";
 import Head from "next/head";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 type Inputs = {
   pname: string;
@@ -273,13 +273,23 @@ const ChapterItem = ({
     <div>
       <>
         {nameEditState ? (
-          <>
+          <div className="flex justify-center items-center">
             <input
+              className="ml-2 pl-4 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onBlur={handleInputOnBlur}
             />
-          </>
+            <span
+              className="mx-2 text-xl text-slate-600 hover:text-green-600 dark:text-slate-300 dark:hover:text-green-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleInputOnBlur();
+              }}
+            >
+              <MdDoneOutline />
+            </span>
+          </div>
         ) : (
           <>
             <input
