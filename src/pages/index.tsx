@@ -1,5 +1,5 @@
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsMoonFill, BsSunFill } from "react-icons/bs";
 import { FcCancel } from "react-icons/fc";
 import { IoAdd } from "react-icons/io5";
@@ -340,6 +340,26 @@ const NewChapter = ({
   const [onWrite, setOnWrite] = useState(false);
   const [newChapter, setNewChapter] = useState("");
   const [newValue, setNewValue] = useState(10);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.altKey && event.key === "n") {
+        setOnWrite(true);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      // focus on input
+      inputRef.current?.focus();
+    }
+  }, [onWrite]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
@@ -378,6 +398,7 @@ const NewChapter = ({
               type="text"
               value={newChapter}
               onKeyDown={handleKeyDown}
+              ref={inputRef}
               onChange={(e) => setNewChapter(e.target.value)}
               id="new-chapter-name"
               placeholder="Chapter / Part Name"
